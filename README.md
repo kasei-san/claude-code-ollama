@@ -266,8 +266,15 @@ cmd //c "/path/to/start.bat" -p "What is 2+2?"     # 正しい
 `CLAUDE_CODE_MAX_CONTEXT_TOKENS` を渡さないと **200k と仮定して
 auto-compact のタイミングを誤る**。`ccl` / `start.bat` が設定済み。
 
-`ANTHROPIC_SMALL_FAST_MODEL` と `ANTHROPIC_DEFAULT_HAIKU_MODEL` の
-**どちらを現行 Claude Code が見るかは未検証**なので、両方に同じ値を入れてある。
+**背景タスクに使われるのは `ANTHROPIC_SMALL_FAST_MODEL`**（2026-08-15 / 2.1.233 で実測）。
+2つの変数に別々のダミー名を入れてプロキシで観測したところ、
+`ANTHROPIC_SMALL_FAST_MODEL` の名前でリクエストが1本飛び、
+`ANTHROPIC_DEFAULT_HAIKU_MODEL` は一度も現れなかった。
+
+**この背景リクエストは毎回は飛ばない。** 同じ内容でも飛ぶ実行と飛ばない実行があるので、
+1回の観測で「使われていない」と判断しないこと。
+
+`ccl` は将来の版で変わっても壊れないよう、**両方に同じ値を入れてある。**
 
 #### `[claude-code:unrecognized_model]` は無視してよい
 
