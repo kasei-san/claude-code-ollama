@@ -58,7 +58,12 @@ else:
     print("[ccl] WARNING: only %.0f%% on GPU -- the rest spills to CPU (~30%% slower)." % pct)
     print("[ccl] the running server was probably started without LLAMA_ARG_FIT_TARGET.")
     print("[ccl] fix: taskkill //F //IM llama-server.exe && taskkill //F //IM ollama.exe && ccl")
-want, got = int(sys.argv[1]), m.get("context_length") or 0
+# Only the too-small side matters: a larger window just means Claude Code
+# compacts earlier than it has to.
+try:
+    want, got = int(sys.argv[1]), int(m["context_length"])
+except (KeyError, TypeError, ValueError):
+    sys.exit()  # unknown on either side: nothing to compare
 if got < want:
     print("[ccl] WARNING: the server gives num_ctx %s, but Claude Code is told %s." % (got, want))
     print("[ccl] it will plan for room the model does not have. Restart ollama so ccl")
