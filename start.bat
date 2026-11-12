@@ -8,12 +8,14 @@ rem ---------------------------------------------------------------
 set "OLLAMA_URL=http://localhost:11434"
 if "%CCL_MODEL%"=="" set "CCL_MODEL=hf.co/unsloth/Qwen3-Coder-Next-GGUF:UD-IQ2_M"
 if "%CCL_FIT_TARGET%"=="" set "CCL_FIT_TARGET=384"
+rem The server's window must match CLAUDE_CODE_MAX_CONTEXT_TOKENS below.
+if "%CCL_CONTEXT%"=="" set "CCL_CONTEXT=131072"
 
 rem --- is a server already up? ---
 curl -s -m 3 "%OLLAMA_URL%/api/version" >nul 2>&1
 if errorlevel 1 (
-    echo [ccl] starting ollama serve with LLAMA_ARG_FIT_TARGET=%CCL_FIT_TARGET%
-    start "" /b cmd /c "set LLAMA_ARG_FIT_TARGET=%CCL_FIT_TARGET%&& ollama serve"
+    echo [ccl] starting ollama serve with OLLAMA_CONTEXT_LENGTH=%CCL_CONTEXT% LLAMA_ARG_FIT_TARGET=%CCL_FIT_TARGET%
+    start "" /b cmd /c "set OLLAMA_CONTEXT_LENGTH=%CCL_CONTEXT%&& set LLAMA_ARG_FIT_TARGET=%CCL_FIT_TARGET%&& ollama serve"
     set /a TRIES=0
     :waitloop
     rem timeout.exe dies when stdin is redirected; ping is the headless-safe sleep
@@ -60,7 +62,6 @@ set "ANTHROPIC_SMALL_FAST_MODEL=%CCL_MODEL%"
 set "ANTHROPIC_DEFAULT_HAIKU_MODEL=%CCL_MODEL%"
 rem Claude Code does not know this model, so tell it the real window
 rem (otherwise it assumes 200k and auto-compacts at the wrong point).
-if "%CCL_CONTEXT%"=="" set "CCL_CONTEXT=131072"
 set "CLAUDE_CODE_MAX_CONTEXT_TOKENS=%CCL_CONTEXT%"
 
 echo [ccl] model = %CCL_MODEL%

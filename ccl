@@ -58,7 +58,12 @@ else:
     print("[ccl] WARNING: only %.0f%% on GPU -- the rest spills to CPU (~30%% slower)." % pct)
     print("[ccl] the running server was probably started without LLAMA_ARG_FIT_TARGET.")
     print("[ccl] fix: taskkill //F //IM llama-server.exe && taskkill //F //IM ollama.exe && ccl")
-'
+want, got = int(sys.argv[1]), m.get("context_length") or 0
+if got < want:
+    print("[ccl] WARNING: the server gives num_ctx %s, but Claude Code is told %s." % (got, want))
+    print("[ccl] it will plan for room the model does not have. Restart ollama so ccl")
+    print("[ccl] starts it with OLLAMA_CONTEXT_LENGTH, or set CCL_CONTEXT=%s." % got)
+' "$CONTEXT"
 }
 
 if up "$OLLAMA_URL"; then
@@ -67,8 +72,11 @@ if up "$OLLAMA_URL"; then
     trap 'rm -f "$TMPREQ"' EXIT
     check_fit
 else
-    echo "[ccl] starting ollama (LLAMA_ARG_FIT_TARGET=$FIT_TARGET)"
-    ( LLAMA_ARG_FIT_TARGET="$FIT_TARGET" nohup ollama serve >/dev/null 2>&1 & )
+    # The server's window must match what we tell Claude Code below
+    # (CLAUDE_CODE_MAX_CONTEXT_TOKENS), or it plans for room the model lacks.
+    echo "[ccl] starting ollama (OLLAMA_CONTEXT_LENGTH=$CONTEXT LLAMA_ARG_FIT_TARGET=$FIT_TARGET)"
+    ( OLLAMA_CONTEXT_LENGTH="$CONTEXT" LLAMA_ARG_FIT_TARGET="$FIT_TARGET" \
+        nohup ollama serve >/dev/null 2>&1 & )
     wait_for "$OLLAMA_URL" ollama 30
 fi
 

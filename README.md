@@ -82,7 +82,7 @@ export PATH="$PATH:/path/to/claude-code-local"
 | | 既定 | 意味 |
 |---|---|---|
 | `CCL_MODEL` | `hf.co/unsloth/Qwen3-Coder-Next-GGUF:UD-IQ2_M` | 使うモデル |
-| `CCL_CONTEXT` | `131072` | `CLAUDE_CODE_MAX_CONTEXT_TOKENS` |
+| `CCL_CONTEXT` | `131072` | `CLAUDE_CODE_MAX_CONTEXT_TOKENS`。ccl が Ollama を起動するときは `OLLAMA_CONTEXT_LENGTH` にも同じ値を渡す |
 | `CCL_FIT_TARGET` | `384` | `LLAMA_ARG_FIT_TARGET`（MiB） |
 | `CCL_PROXY_PORT` | `11435` | 正規化プロキシの待ち受け |
 | `CCL_THINK` | 未設定（＝thinking を切る） | `1` にするとクライアント側の設定に任せる |
